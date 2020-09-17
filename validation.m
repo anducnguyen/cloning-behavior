@@ -54,7 +54,13 @@ invTTC_raw = driver_data_raw(1:size(driver_data_raw(:,13))-4,13);
 THW_raw = driver_data_raw(1:size(driver_data_raw(:,14))-4,14);
 
 
-%% assign y - phi
+%% assign y - phiload ("driver2_data1.mat");
+load ("driver3_data1.mat");
+load ("driver4_data1.mat");
+load ("driver5_data1.mat");
+load ("driver6_data1.mat");
+load ("driver7_data1.mat");
+
 y  = acc;
 y_raw = acc_raw;
 % offset_matrix = ones(length(y),1);

@@ -1,69 +1,74 @@
-%% load filtered data
-load ("driver1_data1.mat");
-load ("driver1_data2.mat");
-load ("driver2_data1.mat");
-load ("driver2_data2.mat");
+clear
+%%
+load('driver1_data1.mat')
+load ('driver2_data1.mat');
 load ("driver3_data1.mat");
-load ("driver3_data2.mat");
 load ("driver4_data1.mat");
-load ("driver4_data2.mat");
 load ("driver5_data1.mat");
-load ("driver5_data2.mat");
 load ("driver6_data1.mat");
-load ("driver6_data2.mat");
 load ("driver7_data1.mat");
-load ("driver7_data2.mat");
+%%
+driver_data_raw(:,:) =[driver1_data1(:,:);driver2_data1(:,:);driver3_data1(:,:)];
+driver_data_normalize = zeros(size(driver_data_raw));
 
-input_data = [driver1_data1(:,:)];
-%     ;driver2_data1(:,:);driver3_data1(:,:)];
-%     ;driver4_data1(:,:);driver5_data1(:,:);driver6_data1(:,:);driver7_data1(:,:)];
-% driver1_data2(:,:);driver2_data2(:,:);driver3_data2(:,:);;driver4_data2(:,:);driver5_data2(:,:);driver6_data2(:,:);driver7_data2(:,:)];
-driver_data = make_velocity_regression_driver_data(input_data); 
-% driver_data = [driver1_data1(:,:)];           
-%% variables in data
+for i = 1:1:14
 
-% '1   time';
-% '2   throttle';
-% '3   brake'; 
-% '4   steer'; 
-% '5   speed'; 
-% '6   acceleration'; 
-% '7   range'; 
-% '8   range_rate';
-% '9   lead_car_velocity';
-% '10  lead_car_acc';
-% '11  kdb';
-% '12  jerk';
-% '13  TTC_inverse';
-% '14  THW' ];
-
-%% nomalize data
-
-% n_time = driver_data(:,1)/max(abs(driver_data(:,1)));
-% n_throttle = driver_data(:,2)/max(abs(driver_data(:,2)));
-n_speed = 2*((driver_data(:,1)-min(driver_data(:,1)))/(max(driver_data(:,1))-min(driver_data(:,1))))-1;
-n_acceleration = 2*((driver_data(:,2)-min(driver_data(:,2)))/(max(driver_data(:,2))-min(driver_data(:,2))))-1;
-n_range = 2*((driver_data(:,5)-min(driver_data(:,5)))/(max(driver_data(:,5))-min(driver_data(:,5))))-1;
-n_range_rate = 2*((driver_data(:,6)-min(driver_data(:,6)))/(max(driver_data(:,6))-min(driver_data(:,6))))-1;
-n_lead_car_velocity = 2*((driver_data(:,3)-min(driver_data(:,3)))/(max(driver_data(:,3))-min(driver_data(:,3))))-1;
-n_lead_car_acc = 2*((driver_data(:,4)-min(driver_data(:,4)))/(max(driver_data(:,4))-min(driver_data(:,4))))-1;
-n_kdb = 2*((driver_data(:,7)-min(driver_data(:,7)))/(max(driver_data(:,7))-min(driver_data(:,7))))-1;
-n_jerk = 2*((driver_data(:,8)-min(driver_data(:,8)))/(max(driver_data(:,8))-min(driver_data(:,8))))-1;
-n_TTC_inverse = 2*((driver_data(:,9)-min(driver_data(:,9)))/(max(driver_data(:,9))-min(driver_data(:,9))))-1;
-n_THW = 2*((driver_data(:,10)-min(driver_data(:,10)))/(max(driver_data(:,10))-min(driver_data(:,10))))-1;
-
-
-%% assign y - phi
-y  = n_acceleration;
-% offset_matrix = ones(length(y),1);
-phi = [n_speed n_range n_range_rate n_lead_car_velocity n_lead_car_acc n_kdb n_jerk n_TTC_inverse n_THW];
+driver_data_normalize(:,i) = 2*((driver_data_raw(:,i)-min(driver_data_raw(:,i)))/(max(driver_data_raw(:,i))-min(driver_data_raw(:,i))))-1;
+end
 
 %%
-clear driver1_data1 driver2_data1 driver3_data1 driver4_data1 driver5_data1 driver6_data1 driver7_data1
-clear driver1_data2 driver2_data2 driver3_data2 driver4_data2 driver5_data2 driver6_data2 driver7_data2
+acc = driver_data_normalize(1:size(driver_data_normalize(:,6))-4,6);
+acc_tminus1 = driver_data_normalize(2:size(driver_data_normalize(:,6))-3,6);
+acc_tminus2 = driver_data_normalize(3:size(driver_data_normalize(:,6))-2,6);
+acc_tminus3 = driver_data_normalize(4:size(driver_data_normalize(:,6))-1,6);
+
+speed  = driver_data_normalize(1:size(driver_data_normalize(:,5))-4,5);
+speed_tminus1 = driver_data_normalize(2:size(driver_data_normalize(:,5))-3,5);
+speed_tminus2 = driver_data_normalize(3:size(driver_data_normalize(:,5))-2,5);
+%speed_tminus3 = driver_data_normalize(4:size(driver_data_normalize(:,5))-1,5);
+
+frontcar_acc = driver_data_normalize(1:size(driver_data_normalize(:,10))-4,10);
+frontcar_speed = driver_data_normalize(1:size(driver_data_normalize(:,9))-4,9);
+range = driver_data_normalize(1:size(driver_data_normalize(:,7))-4,7);
+range_rate = driver_data_normalize(1:size(driver_data_normalize(:,8))-4,8);
+kdb = driver_data_normalize(1:size(driver_data_normalize(:,11))-4,11);
+jerk = driver_data_normalize(1:size(driver_data_normalize(:,12))-4,12);
+invTTC = driver_data_normalize(1:size(driver_data_normalize(:,13))-4,13);
+THW = driver_data_normalize(1:size(driver_data_normalize(:,14))-4,14);
+
+
+acc_raw = driver_data_raw(1:size(driver_data_raw(:,6))-4,6);
+acc_tminus1_raw = driver_data_raw(2:size(driver_data_raw(:,6))-3,6);
+acc_tminus2_raw = driver_data_raw(3:size(driver_data_raw(:,6))-2,6);
+acc_tminus3_raw = driver_data_raw(4:size(driver_data_raw(:,6))-1,6);
+
+speed_raw  = driver_data_raw(1:size(driver_data_raw(:,5))-4,5);
+speed_tminus1_raw = driver_data_raw(2:size(driver_data_raw(:,5))-3,5);
+speed_tminus2_raw = driver_data_raw(3:size(driver_data_raw(:,5))-2,5);
+%speed_tminus3_raw = driver_data_raw(4:size(driver_data_raw(:,5))-1,5);
+
+frontcar_acc_raw = driver_data_raw(1:size(driver_data_raw(:,10))-4,10);
+frontcar_speed_raw = driver_data_raw(1:size(driver_data_raw(:,9))-4,9);
+range_raw = driver_data_raw(1:size(driver_data_raw(:,7))-4,7);
+range_rate_raw = driver_data_raw(1:size(driver_data_raw(:,8))-4,8);
+kdb_raw = driver_data_raw(1:size(driver_data_raw(:,11))-4,11);
+jerk_raw = driver_data_raw(1:size(driver_data_raw(:,12))-4,12);
+invTTC_raw = driver_data_raw(1:size(driver_data_raw(:,13))-4,13);
+THW_raw = driver_data_raw(1:size(driver_data_raw(:,14))-4,14);
+
+
+%% assign y - phiload ("driver2_data1.mat");
+
+
+y  = acc;
+y_raw = acc_raw;
+offset_matrix = ones(length(y),1);
+phi = [acc_tminus3 frontcar_speed frontcar_acc range range_rate kdb invTTC THW];
+
+phi_raw = [acc_tminus3_raw frontcar_speed_raw frontcar_acc_raw range_raw range_rate_raw kdb_raw invTTC_raw THW_raw];
 %% estimate feature vectors
 
-opt_f.c = 2500;
+opt_f.c = 10000;
 opt_f.rmv_const = true; 
 
 % following four options are default settings of calculation.
@@ -74,17 +79,16 @@ opt_f.rmv_const = true;
 
 % calculate the feature vectors through the dynamics.
 [gLDs, LDs] = ohpk_pwarx_data2feature_space( phi, y, opt_f );
-figure;plotmatrix(gLDs);
-%%
-figure
-E = evalclusters([gLDs(:,1),gLDs(:,11)],'kmeans','DaviesBouldin','KList',[1:10]);
-plot(E)
+% %
+% figure
+% E = evalclusters(gLDs,'kmeans','DaviesBouldin','KList',[1:10]);
+% plot(E)
 
 %% clustering
 
-mode_num = 2;
+mode_num = 5;
 %mode_num = E.OptimalK
-opt.NumOfInitialValues = 500;   
+opt.NumOfInitialValues = 20000;   
 % opt.MaxRepetations = 500;       
 opt.CenterInitializeMethod = 'pickout';    
 % opt.CenterInitializeMethod = 'normal';    
@@ -220,13 +224,13 @@ set(gcf,'Position',[10 10 600 400])
 % plot data after cluster
 clr = lines(mode_num);
 figure('name', 'Clustered Data'), hold on
-scatter3(phi(:,2), phi(:,3),y(:,1),10, clr(class,:), 'Marker','x','LineWidth',1);
-% scatter3(gLDs(:,6), gLDs(:,15),y(:,1),50, clr(class,:), 'Marker','.','LineWidth',1)
+% scatter3(phi(:,1), phi(:,2),y(:,1), 10, clr(class,:), 'Marker','d','LineWidth',1);
+scatter3(gLDs(:,19), gLDs(:,8),gLDs(:,3),10, clr(class,:), 'LineWidth',1)
 hold off
 view(3), axis vis3d, box on, rotate3d on
-% xlabel('speed'), ylabel('kdb'), zlabel('acc');
+xlabel('medium vector'), ylabel('parameter vector 1'), zlabel('parameter vector ');
 
-view([0 0]);grid on
+view([0 90]);grid on
 set(gca,'Fontsize',14)
 set(gcf,'Position',[10 10 600 400])
 
@@ -234,7 +238,7 @@ set(gcf,'Position',[10 10 600 400])
 % plot data after cluster
 clr = lines(mode_num);
 figure('name', 'Clustered Data'), hold on
-scatter3(gLDs(:,3), gLDs(:,18),gLDs(:,6),50, clr(class,:), 'Marker','.','LineWidth',1)
+scatter3(gLDs(:,20), gLDs(:,9),gLDs(:,6),50, clr(class,:), 'Marker','.','LineWidth',1)
 % scatter3(center(:,1), center(:,2), center(:,3), 100, clr, 'Marker','o', 'LineWidth',1)
 hold off
 view([0 0]), axis vis3d, box on, rotate3d on
