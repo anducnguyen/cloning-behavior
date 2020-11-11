@@ -8,7 +8,7 @@ load ("driver5_data1.mat");
 load ("driver6_data1.mat");
 load ("driver7_data1.mat");
 %%
-driver_data_raw(:,:) =[driver1_data1(:,:);driver2_data1(:,:);driver3_data1(:,:)];
+driver_data_raw(:,:) =[driver1_data1(:,:);driver2_data1(:,:)];
 driver_data_normalize = zeros(size(driver_data_raw));
 
 for i = 1:1:14
@@ -63,19 +63,19 @@ THW_raw = driver_data_raw(1:size(driver_data_raw(:,14))-4,14);
 y  = acc;
 y_raw = acc_raw;
 offset_matrix = ones(length(y),1);
-phi = [acc_tminus3 frontcar_speed frontcar_acc range range_rate kdb invTTC THW];
+phi = [acc_tminus3 frontcar_speed frontcar_acc range range_rate kdb invTTC THW offset_matrix];
 
 phi_raw = [acc_tminus3_raw frontcar_speed_raw frontcar_acc_raw range_raw range_rate_raw kdb_raw invTTC_raw THW_raw];
 %% estimate feature vectors
 
-opt_f.c = 10000;
-opt_f.rmv_const = true; 
+opt_f.c = 3000;
+opt_f.rmv_const = false; 
 
 % following four options are default settings of calculation.
-% opt_f.calc_r = true;  
-% opt_f.calc_ir = true;
+ opt_f.calc_r = true;  
+ opt_f.calc_ir = true;
 % opt_f.calc_spr = true;
-% opt_f.calc_w = true;
+ opt_f.calc_w = true;
 
 % calculate the feature vectors through the dynamics.
 [gLDs, LDs] = ohpk_pwarx_data2feature_space( phi, y, opt_f );
@@ -89,9 +89,9 @@ opt_f.rmv_const = true;
 mode_num = 5;
 %mode_num = E.OptimalK
 opt.NumOfInitialValues = 20000;   
-% opt.MaxRepetations = 500;       
-opt.CenterInitializeMethod = 'pickout';    
-% opt.CenterInitializeMethod = 'normal';    
+ opt.MaxRepetations = 1000;       
+%opt.CenterInitializeMethod = 'pickout';    
+ opt.CenterInitializeMethod = 'normal';    
 % opt.CenterInitializeMethod = 'uniform';    
 % opt.CenterInitializeStd = std(gLDs);    
 % opt.CenterInitializeMean = mean(gLDs,1);    
