@@ -12,7 +12,7 @@ import joblib
 # columns =['data', 'target', 'target_names', 'DESCR', 'feature_names', 'filename']
 # df_train = pd.DataFrame(iris_data, columns=columns)
 
-matfile = scipy.io.loadmat('/home/horizon/Desktop/cloning_behavior_mat/general_mode_concat_driver123.mat')
+matfile = scipy.io.loadmat('/home/arun/Desktop/an_ws/cloning_behavior_mat/general_mode_concat_driver123.mat')
 model_label = matfile['class'][:]
 # mode_label = mode_label.transpose()
 # mode_label.shape
@@ -40,8 +40,9 @@ label = np.array(Y)[0:30]
 print(label)
 print(test)
 flg = clf.predict(test)
+print("Mode Selection in Real Time")
 print(flg)
-
+print("SVM coeff")
 print(clf.coef_)
 # z1 = lambda x1,y1: (-clf.intercept_[0]-clf.coef_[0][0]*x -clf.coef_[0][1]*y) / clf.coef_[0][2]
 # z2 = lambda x2,y2: (-clf.intercept_[1]-clf.coef_[1][0]*x -clf.coef_[1][1]*y) / clf.coef_[1][2]
